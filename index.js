@@ -1,5 +1,5 @@
 // TODO
-// 검색 기록 표시 구현
+// 검색 결과 표시 구현
 // 페이징 구현
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
