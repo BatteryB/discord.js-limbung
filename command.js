@@ -63,7 +63,7 @@ const commands = [
                         value: "4"
                     },
                     {
-                        name: "침장",
+                        name: "침잠",
                         value: "5"
                     },
                     {
@@ -91,6 +91,12 @@ const commands = [
             {
                 name: '이름',
                 description: '이름으로 검색하기',
+                type: 3,
+                required: false
+            },
+            {
+                name: '재료',
+                description: '재료 이름으로 검색하기',
                 type: 3,
                 required: false
             }
