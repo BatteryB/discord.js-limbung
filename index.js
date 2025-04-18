@@ -46,7 +46,6 @@ client.on(Events.InteractionCreate, async interaction => {
         query += ` ORDER BY g.tire, g.keyword`
 
         const giftResult = db.prepare(query).all(...queryParams);
-        console.log(giftResult);
 
         if (giftResult.length <= 0) {
             interaction.editReply({
@@ -61,8 +60,6 @@ client.on(Events.InteractionCreate, async interaction => {
             const arr = giftResult.slice(i, i + 3);
             giftList.push(arr);
         }
-
-        console.log(giftList)
 
         const embed = giftEmbedBuilder(giftList[giftIndex]);
         embed.setFooter({
@@ -81,8 +78,6 @@ client.on(Events.InteractionCreate, async interaction => {
         collector.on('collect', async i => {
             // i.customId가 baxk, next중에 포함 여부
             if (['back', 'next'].includes(i.customId)) {
-                console.log(giftList.length - 1);
-                console.log(giftIndex);
 
                 if (i.customId == 'back' && giftIndex > 0) {
                     giftIndex--;
@@ -100,9 +95,7 @@ client.on(Events.InteractionCreate, async interaction => {
                     embeds: [embed]
                 });
             } else {
-                console.log(i.customId)
-                console.log(giftList[giftIndex][Number(i.customId) - 1]);
-                const selectGift = giftList[giftIndex][Number(i.customId) - 1];
+                const selectGift = giftList[giftIndex][Number(i.customId)];
                 if (!selectGift) {
                     await i.deferUpdate();
                     return;
@@ -164,17 +157,17 @@ function pageButtonBuilder(disable) {
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('1')
+                .setCustomId('0')
                 .setLabel('1️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('2')
+                .setCustomId('1')
                 .setLabel('2️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('3')
+                .setCustomId('2')
                 .setLabel('3️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
