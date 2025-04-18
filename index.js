@@ -1,6 +1,3 @@
-// TODO
-// 완성했노 ^.^
-
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
@@ -130,6 +127,7 @@ function giftEmbedBuilder(giftArr) {
         .setTitle('에고기프트 검색결과')
         .setColor('DarkRed');
 
+    // 페이징 목록 표시
     let idx = 1;
     giftArr.forEach(gift => {
         embed.addFields({
