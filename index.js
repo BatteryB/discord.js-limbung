@@ -25,7 +25,7 @@ client.on(Events.InteractionCreate, async interaction => {
         const material = interaction.options.getString('재료');
 
         // 기본 쿼리문과 파라미터 선언
-        let query = `SELECT g.name, k.name as 'keyword', g.tire, g.comb, g.hard, g.limited FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
+        let query = `SELECT g.name, k.name as 'keyword', g.tire, g.comb, g.hard, g.limited, g.effect FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
         let queryParams = [];
 
         // where문 쿼리추가, 파라미터 추가
@@ -107,7 +107,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 await i.update({
                     embeds: [giftInfoEmbedBuilder(selectGift)]
                 })
-                
+
                 collector.stop();
                 return;
             }
@@ -148,6 +148,7 @@ function giftInfoEmbedBuilder(gift) {
             { name: '키워드', value: gift.keyword, inline: true },
             { name: '티어', value: gift.tire.toString(), inline: true },
             { name: '조합식', value: gift.comb },
+            { name: '효과', value: gift.effect }
         )
         .setColor('DarkRed');
     return embed;
