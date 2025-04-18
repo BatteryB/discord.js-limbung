@@ -48,6 +48,13 @@ client.on(Events.InteractionCreate, async interaction => {
         const giftResult = db.prepare(query).all(...queryParams);
         console.log(giftResult);
 
+        if (giftResult.length <= 0) {
+            interaction.editReply({
+                content: "__***검색결과를 찾지 못했습니다.. ㅠㅠ***__"
+            })
+            return;
+        }
+
         // 결과값 3개씩 나눠서 2차원배열로 정리
         let giftList = [], giftIndex = 0;
         for (let i = 0; i < giftResult.length; i += 3) {
@@ -60,7 +67,7 @@ client.on(Events.InteractionCreate, async interaction => {
         const embed = giftEmbedBuilder(giftList[giftIndex]);
         embed.setFooter({
             text: `${giftIndex + 1} / ${giftList.length}`
-        })
+        });
 
         const response = await interaction.editReply({
             embeds: [embed],
@@ -72,48 +79,59 @@ client.on(Events.InteractionCreate, async interaction => {
         });
 
         collector.on('collect', async i => {
-            console.log(giftList.length - 1);
-            console.log(giftIndex);
-
             // i.customId가 baxk, next중에 포함 여부
-            if(['back', 'next'].includes(i.customId)) {
+            if (['back', 'next'].includes(i.customId)) {
+                console.log(giftList.length - 1);
+                console.log(giftIndex);
+
                 if (i.customId == 'back' && giftIndex > 0) {
-                    giftIndex--
+                    giftIndex--;
                 }
                 if (i.customId == 'next' && giftIndex < giftList.length - 1) {
-                    giftIndex++
+                    giftIndex++;
                 }
-    
+
                 const embed = giftEmbedBuilder(giftList[giftIndex]);
                 embed.setFooter({
                     text: `${giftIndex + 1} / ${giftList.length}`
-                })
-    
-                i.update({
-                    embeds: [embed]
-                })
-            }
+                });
 
-            // collector.stop();
+                await i.update({
+                    embeds: [embed]
+                });
+            } else {
+                console.log(i.customId)
+                console.log(giftList[giftIndex][Number(i.customId) - 1]);
+                const selectGift = giftList[giftIndex][Number(i.customId) - 1];
+                if (!selectGift) {
+                    await i.deferUpdate();
+                    return;
+                }
+
+                await i.update({
+                    embeds: [giftInfoEmbedBuilder(selectGift)]
+                })
+                collector.stop();
+                return;
+            }
         })
 
-        // collector.on('end', async () => {
-        //     const disabledButtons = pageButtonBuilder(true);
-        //     await interaction.editReply({
-        //         components: [disabledButtons]
-        //     });
-        //     return;
-        // });
+        collector.on('end', async () => {
+            await interaction.editReply({
+                components: [pageButtonBuilder(true)]
+            });
+            return;
+        });
     }
 });
 
-function giftEmbedBuilder(gift) {
+function giftEmbedBuilder(giftArr) {
     const embed = new EmbedBuilder()
-        .setTitle('조합 에고기프트 목록')
+        .setTitle('에고기프트 검색결과')
         .setColor('DarkRed');
 
     let idx = 1;
-    gift.forEach(gift => {
+    giftArr.forEach(gift => {
         embed.addFields({
             name: `${idx}. ${gift.name}`,
             value: `${gift.keyword} / ${gift.tire}티어`
@@ -121,6 +139,19 @@ function giftEmbedBuilder(gift) {
         idx++;
     });
 
+    return embed;
+}
+
+function giftInfoEmbedBuilder(gift) {
+    const embed = new EmbedBuilder()
+        .setTitle(gift.name)
+        .setDescription(`${gift.hard ? '하드 전용 기프트' : ''}\n${gift.limited != 'none' ? `"${gift.limited}" 전용` : ''}`)
+        .addFields(
+            { name: '키워드', value: gift.keyword, inline: true },
+            { name: '티어', value: gift.tire.toString(), inline: true },
+            { name: '조합식', value: gift.comb },
+        )
+        .setColor('DarkRed');
     return embed;
 }
 
@@ -133,17 +164,17 @@ function pageButtonBuilder(disable) {
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('0')
+                .setCustomId('1')
                 .setLabel('1️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('1')
+                .setCustomId('2')
                 .setLabel('2️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('2')
+                .setCustomId('3')
                 .setLabel('3️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
