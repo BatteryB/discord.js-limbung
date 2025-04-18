@@ -95,6 +95,7 @@ client.on(Events.InteractionCreate, async interaction => {
                     embeds: [embed]
                 });
             } else {
+                // giftlist에 현재 index의 선택한 위치 (2차원배열)
                 const selectGift = giftList[giftIndex][Number(i.customId)];
                 if (!selectGift) {
                     await i.deferUpdate();
@@ -104,6 +105,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 await i.update({
                     embeds: [giftInfoEmbedBuilder(selectGift)]
                 })
+                
                 collector.stop();
                 return;
             }
