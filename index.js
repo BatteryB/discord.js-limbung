@@ -50,16 +50,22 @@ client.on(Events.InteractionCreate, async interaction => {
         console.log(giftResult);
 
         // 결과값 3개씩 나눠서 2차원배열로 정리
-        let giftList = [];
+        let giftList = [], giftIndex = 0;
         for (let i = 0; i < giftResult.length; i += 3) {
-            const chunk = giftResult.slice(i, i + 3);
-            giftList.push(chunk);
+            const arr = giftResult.slice(i, i + 3);
+            giftList.push(arr);
         }
 
         console.log(giftList)
 
+        const embed = giftEmbedBuilder(giftList[giftIndex]);
+
+        embed.setFooter({
+            text: `${giftIndex + 1} / ${giftList.length}`
+        })
+
         const response = await interaction.editReply({
-            embeds: [embedBuilder()],
+            embeds: [embed],
             components: [pageButtonBuilder(false)]
         });
 
@@ -68,7 +74,7 @@ client.on(Events.InteractionCreate, async interaction => {
         });
 
         collector.on('collect', async i => {
-
+            
 
             // collector.stop();
         })
@@ -83,11 +89,22 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-function embedBuilder() {
-    return new EmbedBuilder()
+function giftEmbedBuilder(gift) {
+    const embed = new EmbedBuilder()
         .setTitle('조합 에고기프트 목록')
         .setDescription('ㅤ')
         .setColor('DarkRed');
+
+    let idx = 1;
+    gift.forEach(gift => {
+        embed.addFields({
+            name: `${idx}. ${gift.name}`,
+            value: `${gift.keyword} / ${gift.tire}티어`
+        });
+        idx++;
+    });
+
+    return embed;
 }
 
 function pageButtonBuilder(disable) {
@@ -99,17 +116,17 @@ function pageButtonBuilder(disable) {
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('1')
+                .setCustomId('0')
                 .setLabel('1️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('2')
+                .setCustomId('1')
                 .setLabel('2️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
             new ButtonBuilder()
-                .setCustomId('3')
+                .setCustomId('2')
                 .setLabel('3️⃣')
                 .setStyle(ButtonStyle.Primary)
                 .setDisabled(disable),
