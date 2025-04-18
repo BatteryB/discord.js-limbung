@@ -6,7 +6,7 @@ dotenv.config({ path: 'env/token.env' });
 const commands = [
     {
         name: '에깊조합식',
-        description: '각 에고기프트의 조합식을 확인한다.',
+        description: '***조합 기프트만 검색 가능합니다!!',
         options: [
             {
                 name: '티어',
