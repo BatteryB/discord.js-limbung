@@ -1,5 +1,5 @@
 // TODO
-// 검색결과 중 기프트 선택 시 해당 기프트 정보 표시로 넘어가는 기능
+// 완성했노 ^.^
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import Database from 'better-sqlite3';
