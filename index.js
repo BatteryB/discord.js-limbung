@@ -1,6 +1,5 @@
 // TODO
-// 검색 결과 표시 구현
-// 페이징 구현
+// 검색결과 중 기프트 선택 시 해당 기프트 정보 표시로 넘어가는 기능
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import Database from 'better-sqlite3';
@@ -59,7 +58,6 @@ client.on(Events.InteractionCreate, async interaction => {
         console.log(giftList)
 
         const embed = giftEmbedBuilder(giftList[giftIndex]);
-
         embed.setFooter({
             text: `${giftIndex + 1} / ${giftList.length}`
         })
@@ -74,7 +72,27 @@ client.on(Events.InteractionCreate, async interaction => {
         });
 
         collector.on('collect', async i => {
-            
+            console.log(giftList.length - 1);
+            console.log(giftIndex);
+
+            // i.customId가 baxk, next중에 포함 여부
+            if(['back', 'next'].includes(i.customId)) {
+                if (i.customId == 'back' && giftIndex > 0) {
+                    giftIndex--
+                }
+                if (i.customId == 'next' && giftIndex < giftList.length - 1) {
+                    giftIndex++
+                }
+    
+                const embed = giftEmbedBuilder(giftList[giftIndex]);
+                embed.setFooter({
+                    text: `${giftIndex + 1} / ${giftList.length}`
+                })
+    
+                i.update({
+                    embeds: [embed]
+                })
+            }
 
             // collector.stop();
         })
@@ -92,7 +110,6 @@ client.on(Events.InteractionCreate, async interaction => {
 function giftEmbedBuilder(gift) {
     const embed = new EmbedBuilder()
         .setTitle('조합 에고기프트 목록')
-        .setDescription('ㅤ')
         .setColor('DarkRed');
 
     let idx = 1;
@@ -139,5 +156,3 @@ function pageButtonBuilder(disable) {
 }
 
 client.login(process.env.TOKEN);
-
-
