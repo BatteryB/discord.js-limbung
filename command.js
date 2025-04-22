@@ -5,8 +5,8 @@ dotenv.config({ path: 'env/token.env' });
 
 const commands = [
     {
-        name: '에깊조합식',
-        description: '***조합 기프트만 검색 가능합니다!!',
+        name: '에고기프트',
+        description: '에고기프트를 검색합니다.',
         options: [
             {
                 name: '티어',

@@ -16,7 +16,7 @@ client.on(Events.ClientReady, readyClient => {
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.commandName == '에깊조합식') {
+    if (interaction.commandName == '에고기프트') {
         await interaction.deferReply();
 
         const tire = interaction.options.getString('티어');
@@ -25,7 +25,7 @@ client.on(Events.InteractionCreate, async interaction => {
         const material = interaction.options.getString('재료');
 
         // 기본 쿼리문과 파라미터 선언
-        let query = `SELECT g.name, k.name as 'keyword', g.tire, g.comb, g.hard, g.limited, g.effect FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
+        let query = `SELECT g.name, k.name as 'keyword', g.tire, g.comb, g.hard, g.limited, g.effect1, g.effect2, g.effect3 FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
         let queryParams = [];
 
         // where문 쿼리추가, 파라미터 추가
@@ -77,6 +77,7 @@ client.on(Events.InteractionCreate, async interaction => {
             time: 180_000
         });
 
+        let selectGift;
         collector.on('collect', async i => {
             // i.customId가 baxk, next중에 포함 여부
             if (['back', 'next'].includes(i.customId)) {
@@ -96,26 +97,41 @@ client.on(Events.InteractionCreate, async interaction => {
                 await i.update({
                     embeds: [embed]
                 });
+            } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) {
+                let effect;
+                if (i.customId == 'effect1') {
+                    effect = selectGift.effect1;
+                } else if (i.customId == 'effect2') {
+                    effect = selectGift.effect2;
+                } else if (i.customId == 'effect3') {
+                    effect = selectGift.effect3;
+                }
+
+                await i.update({
+                    embeds: [giftInfoEmbedBuilder(selectGift, effect)]
+                });
             } else {
                 // giftlist에 현재 index의 선택한 위치 (2차원배열)
-                const selectGift = giftList[giftIndex][Number(i.customId)];
+                selectGift = giftList[giftIndex][Number(i.customId)];
                 if (!selectGift) {
                     await i.deferUpdate();
                     return;
                 }
 
-                await i.update({
-                    embeds: [giftInfoEmbedBuilder(selectGift)]
-                })
-
-                collector.stop();
-                return;
+                const row = effectButtonBuilder(selectGift);
+                const options = { embeds: [giftInfoEmbedBuilder(selectGift, selectGift.effect1)] };
+                if (row) {
+                    options.components = [row];
+                } else {
+                    options.components = [];
+                }
+                await i.update(options);
             }
         })
 
         collector.on('end', async () => {
             await interaction.editReply({
-                components: [pageButtonBuilder(true)]
+                components: []
             });
             return;
         });
@@ -140,49 +156,72 @@ function giftEmbedBuilder(giftArr) {
     return embed;
 }
 
-function giftInfoEmbedBuilder(gift) {
+function giftInfoEmbedBuilder(gift, effect) {
     const embed = new EmbedBuilder()
         .setTitle(gift.name)
         .setDescription(`${gift.hard ? '하드 전용 기프트' : ''}\n${gift.limited != 'none' ? `"${gift.limited}" 전용` : ''}`)
         .addFields(
             { name: '키워드', value: gift.keyword, inline: true },
             { name: '티어', value: gift.tire.toString(), inline: true },
-            { name: '조합식', value: gift.comb },
-            { name: '효과', value: gift.effect }
         )
         .setColor('DarkRed');
+
+    if (gift.comb != 'none') {
+        embed.addFields({ name: '조합식', value: gift.comb });
+    }
+    embed.addFields({ name: '효과', value: effect });
+
     return embed;
 }
 
-function pageButtonBuilder(disable) {
+function pageButtonBuilder() {
     return new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
                 .setCustomId('back')
                 .setLabel('⏪이전')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(disable),
+                .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
                 .setCustomId('0')
                 .setLabel('1️⃣')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(disable),
+                .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
                 .setCustomId('1')
                 .setLabel('2️⃣')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(disable),
+                .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
                 .setCustomId('2')
                 .setLabel('3️⃣')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(disable),
+                .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
                 .setCustomId('next')
                 .setLabel('다음⏩')
-                .setStyle(ButtonStyle.Primary)
-                .setDisabled(disable),
+                .setStyle(ButtonStyle.Primary),
         )
 }
 
+function effectButtonBuilder(gift) {
+    if (gift.effect2 != 'none') {
+        var row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('effect1')
+                .setLabel('기본효과')
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId('effect2')
+                .setLabel('1강')
+                .setStyle(ButtonStyle.Primary),
+        )
+    }
+    if (gift.effect3 != 'none') {
+        row.addComponents(
+            new ButtonBuilder()
+                .setCustomId('effect3')
+                .setLabel('2강')
+                .setStyle(ButtonStyle.Primary),
+        )
+    }
+
+    return row;
+}
 client.login(process.env.TOKEN);
