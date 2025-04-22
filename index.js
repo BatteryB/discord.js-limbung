@@ -74,7 +74,7 @@ client.on(Events.InteractionCreate, async interaction => {
         });
 
         const collector = response.createMessageComponentCollector({
-            time: 180_000
+            time: 500_000 // 5분
         });
 
         let selectGift;
@@ -130,8 +130,16 @@ client.on(Events.InteractionCreate, async interaction => {
         })
 
         collector.on('end', async () => {
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('')
+                        .setLabel('검색시간이 끝났습니다.')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled()
+                )
             await interaction.editReply({
-                components: []
+                components: [row]
             });
             return;
         });
