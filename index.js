@@ -138,8 +138,8 @@ client.on(Events.InteractionCreate, async interaction => {
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('')
-                        .setLabel('검색시간이 끝났습니다.')
+                        .setCustomId('end')
+                        .setLabel('검색종료')
                         .setStyle(ButtonStyle.Secondary)
                         .setDisabled()
                 )
