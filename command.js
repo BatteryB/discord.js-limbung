@@ -99,7 +99,23 @@ const commands = [
                 description: '재료 이름으로 검색하기',
                 type: 3,
                 required: false
-            }
+            },
+            {
+                name: '타입',
+                description: '일반 or 조합 기프트만 검색하기',
+                type: 3,
+                required: false,
+                choices: [
+                    {
+                        name: "일반",
+                        value: "일반"
+                    },
+                    {
+                        name: "조합",
+                        value: "조합"
+                    },
+                ]
+            },
         ]
     },
 ];
