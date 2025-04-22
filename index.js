@@ -47,7 +47,7 @@ client.on(Events.InteractionCreate, async interaction => {
             queryParams.push(`%${material}%`);
         }
         if(type) {
-            query += type == '일반' ? ` AND g.comb = none` : ` AND g.comb != none`
+            query += type == '일반' ? ` AND g.comb = 'none'` : ` AND g.comb != 'none'`
         }
 
         query += ` ORDER BY g.tire, g.keyword`
