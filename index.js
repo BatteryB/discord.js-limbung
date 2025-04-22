@@ -23,7 +23,7 @@ client.on(Events.InteractionCreate, async interaction => {
         const keyword = interaction.options.getString('키워드');
         const name = interaction.options.getString('이름');
         const material = interaction.options.getString('재료');
-        const type = interaction.options.getString('형식');
+        const type = interaction.options.getString('타입');
 
         // 기본 쿼리문과 파라미터 선언
         let query = `SELECT g.name, k.name as 'keyword', g.tire, g.cost, g.comb, g.hard, g.limited, g.effect1, g.effect2, g.effect3 FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
