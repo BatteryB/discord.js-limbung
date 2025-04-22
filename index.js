@@ -98,17 +98,20 @@ client.on(Events.InteractionCreate, async interaction => {
                     embeds: [embed]
                 });
             } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) {
-                let effect;
+                let effect, upgrade;
                 if (i.customId == 'effect1') {
                     effect = selectGift.effect1;
+                    upgrade == 1
                 } else if (i.customId == 'effect2') {
                     effect = selectGift.effect2;
+                    upgrade == 2
                 } else if (i.customId == 'effect3') {
                     effect = selectGift.effect3;
+                    upgrade == 3
                 }
 
                 await i.update({
-                    embeds: [giftInfoEmbedBuilder(selectGift, effect)]
+                    embeds: [giftInfoEmbedBuilder(selectGift, effect, upgrade)]
                 });
             } else {
                 // giftlist에 현재 index의 선택한 위치 (2차원배열)
@@ -119,7 +122,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 }
 
                 const row = effectButtonBuilder(selectGift);
-                const options = { embeds: [giftInfoEmbedBuilder(selectGift, selectGift.effect1)] };
+                const options = { embeds: [giftInfoEmbedBuilder(selectGift, selectGift.effect1, 1)] };
                 if (row) {
                     options.components = [row];
                 } else {
@@ -156,7 +159,7 @@ function giftEmbedBuilder(giftArr) {
     return embed;
 }
 
-function giftInfoEmbedBuilder(gift, effect) {
+function giftInfoEmbedBuilder(gift, effect, upgrade) {
     const embed = new EmbedBuilder()
         .setTitle(gift.name)
         .setDescription(`${gift.hard ? '하드 전용 기프트' : ''}\n${gift.limited != 'none' ? `"${gift.limited}" 전용` : ''}`)
@@ -169,7 +172,7 @@ function giftInfoEmbedBuilder(gift, effect) {
     if (gift.comb != 'none') {
         embed.addFields({ name: '조합식', value: gift.comb });
     }
-    embed.addFields({ name: '효과', value: effect });
+    embed.addFields({ name: upgrade == 1 ? '효과' : upgrade == 2 ? '효과+' : '효과++' , value: effect });
 
     return embed;
 }
