@@ -26,7 +26,22 @@ client.on(Events.InteractionCreate, async interaction => {
         const type = interaction.options.getString('타입');
 
         // 기본 쿼리문과 파라미터 선언
-        let query = `SELECT g.name, k.name as 'keyword', g.tire, g.cost, g.comb, g.hard, g.limited, g.effect1, g.effect2, g.effect3 FROM gift g JOIN keyword k ON g.keyword = k.id WHERE 1 = 1`;
+        let query = `
+            SELECT 
+                g.name, 
+                k.name as 'keyword', 
+                g.tire, 
+                g.cost, 
+                g.comb, 
+                g.hard, 
+                g.limited, 
+                g.effect1, 
+                g.effect2, 
+                g.effect3 
+            FROM gift g 
+            JOIN keyword k ON g.keyword = k.id 
+            WHERE 1 = 1
+        `;
         let queryParams = [];
 
         // where문 쿼리추가, 파라미터 추가
@@ -46,7 +61,7 @@ client.on(Events.InteractionCreate, async interaction => {
             query += ` AND g.comb LIKE ?`;
             queryParams.push(`%${material}%`);
         }
-        if(type) {
+        if (type) {
             query += type == '일반' ? ` AND g.comb = 'none'` : ` AND g.comb != 'none'`
         }
 
@@ -148,6 +163,70 @@ client.on(Events.InteractionCreate, async interaction => {
             });
             return;
         });
+    }
+
+    if (interaction.commandName == '추출') {
+        await interaction.deferReply();
+        const count = interaction.options.getNumber('횟수');
+        const walpu = interaction.options.getNumber('발푸르기스의밤');
+
+        const weight = db.prepare(`
+                select 
+                    star, 
+                    weight
+                from prob
+            `).all();
+        const totalWeight = weight.reduce((sum, item) => sum + item.weight, 0);
+
+        let characterQuery = `
+            SELECT 
+                i.name as 'inmate',
+                p.star,
+                p.name
+            FROM persona p
+            JOIN inmate i ON i.id = p.inmate
+            WHERE 1=1
+        `;
+
+        let egoQuery = `
+            SELECT 
+                i.name as 'inmate', 
+                e.name, 
+                r.rating
+            FROM ego e
+            JOIN inmate i ON i.id = e.inmate
+            JOIN egoRating r ON r.id = e.rating
+            WHERE 1=1
+        `;
+
+        if(walpu == '0' || walpu == undefined) {
+            characterQuery += ` AND walpu = 0`;
+            egoQuery += ` AND walpu = 0`;
+        }
+
+        const characterList = db.prepare(characterQuery).all();
+
+        const egoList = db.prepare(egoQuery).all();
+
+        let extractList = []
+        for (let i = 0; i < count; i++) {
+            const randomValue = Math.random() * totalWeight;
+            let weightSum = 0;
+            for (let j = 0; j < weight.length; j++) {
+                weightSum += weight[j].weight;
+                if (randomValue <= weightSum) {
+                    if (weight[j] == 'ego') {
+                        console.log(egoList[Math.floor(Math.random() * egoList.length)])
+                    } else {
+                        const character = characterList.filter(char => char.star == weight[j].star);
+                        console.log(character[Math.floor(Math.random() * character.length)])
+                    }
+                    break;
+                }
+            }
+        }
+
+        console.log(extractList.map(item => item.star).join(", "));
     }
 });
 
