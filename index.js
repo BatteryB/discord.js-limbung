@@ -224,11 +224,10 @@ client.on(Events.InteractionCreate, async interaction => {
                     break;
                 }
             }
-
-            extractList.forEach(persona => {
-                console.log(persona);
-            });
         }
+        extractList.forEach(persona => {
+            console.log(persona);
+        });
     }
 });
 
