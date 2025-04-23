@@ -216,7 +216,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 weightSum += weight[j].weight;
                 if (randomValue <= weightSum) {
                     if (weight[j] == 'ego') {
-                        console.log(egoList[Math.floor(Math.random() * egoList.length)])
+                        extractList.push(egoList[Math.floor(Math.random() * egoList.length)]);
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
                         extractList.push(character[Math.floor(Math.random() * character.length)]);
