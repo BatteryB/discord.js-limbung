@@ -219,14 +219,16 @@ client.on(Events.InteractionCreate, async interaction => {
                         console.log(egoList[Math.floor(Math.random() * egoList.length)])
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
-                        console.log(character[Math.floor(Math.random() * character.length)])
+                        extractList.push(character[Math.floor(Math.random() * character.length)]);
                     }
                     break;
                 }
             }
-        }
 
-        console.log(extractList.map(item => item.star).join(", "));
+            extractList.forEach(persona => {
+                console.log(persona);
+            });
+        }
     }
 });
 
