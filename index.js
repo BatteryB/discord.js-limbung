@@ -201,7 +201,7 @@ client.on(Events.InteractionCreate, async interaction => {
             WHERE 1=1
         `;
 
-        if(walpu == '0' || walpu == undefined) {
+        if (walpu == '0' || walpu == undefined) {
             characterQuery += ` AND walpu = 0`;
             egoQuery += ` AND walpu = 0`;
         }
@@ -227,9 +227,11 @@ client.on(Events.InteractionCreate, async interaction => {
                 }
             }
         }
+        let text = ''
         extractList.forEach(persona => {
-            console.log(persona);
+            text += `${persona.star}성 ${persona.name} ${persona.inmate} ${persona.walpu ? '발푸!' : ''}\n`
         });
+        await interaction.editReply({ content: text });
     }
 });
 
