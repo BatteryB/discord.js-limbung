@@ -182,7 +182,8 @@ client.on(Events.InteractionCreate, async interaction => {
             SELECT 
                 i.name as 'inmate',
                 p.star,
-                p.name
+                p.name, 
+                p.walpu
             FROM persona p
             JOIN inmate i ON i.id = p.inmate
             WHERE 1=1
@@ -192,7 +193,8 @@ client.on(Events.InteractionCreate, async interaction => {
             SELECT 
                 i.name as 'inmate', 
                 e.name, 
-                r.rating
+                r.rating, 
+                e.walpu
             FROM ego e
             JOIN inmate i ON i.id = e.inmate
             JOIN egoRating r ON r.id = e.rating
