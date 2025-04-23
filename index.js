@@ -214,7 +214,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         let extractList = []
         for (let i = 0; i < count; i++) {
-            const randomValue = Math.random() * totalWeight;
+            const randomValue = 100.1 //Math.random() * totalWeight;
             let weightSum = 0;
             for (let j = 0; j < weight.length; j++) {
                 weightSum += weight[j].weight;
@@ -225,7 +225,7 @@ client.on(Events.InteractionCreate, async interaction => {
                             type: 'ego',
                             result: resultEgo
                         });
-                        
+
                         // 림버스에서 EGO는 중복이 나오지 않기 떄문에 뽑으면 제거
                         egoList.splice(egoList.findIndex(e => e.id == resultEgo.id), 1);
                     } else {
@@ -242,9 +242,9 @@ client.on(Events.InteractionCreate, async interaction => {
         let text = ''
         extractList.forEach(p => {
             if(p.type == 'character') {
-                text += `${p.result.star}성 ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '발푸!' : ''}\n`
+                text += `${p.result.star}성 ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
             } else {
-                text += `[${p.result.rating}] ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '발푸!' : ''}\n`
+                text += `[${p.result.rating}] ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
             }
         });
         await interaction.editReply({ content: text });
