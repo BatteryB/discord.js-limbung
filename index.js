@@ -180,6 +180,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         let characterQuery = `
             SELECT 
+                i.id,
                 i.name as 'inmate',
                 p.star,
                 p.name, 
@@ -191,6 +192,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         let egoQuery = `
             SELECT 
+                e.id, 
                 i.name as 'inmate', 
                 e.name, 
                 r.rating, 
@@ -217,19 +219,33 @@ client.on(Events.InteractionCreate, async interaction => {
             for (let j = 0; j < weight.length; j++) {
                 weightSum += weight[j].weight;
                 if (randomValue <= weightSum) {
-                    if (weight[j] == 'ego') {
-                        extractList.push(egoList[Math.floor(Math.random() * egoList.length)]);
+                    if (weight[j].star == 'EGO') {
+                        const resultEgo = egoList[Math.floor(Math.random() * egoList.length)];
+                        extractList.push({
+                            type: 'ego',
+                            result: resultEgo
+                        });
+                        
+                        // 림버스에서 EGO는 중복이 나오지 않기 떄문에 뽑으면 제거
+                        egoList.splice(egoList.findIndex(e => e.id == resultEgo.id), 1);
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
-                        extractList.push(character[Math.floor(Math.random() * character.length)]);
+                        extractList.push({
+                            type: 'character',
+                            result: character[Math.floor(Math.random() * character.length)]
+                        });
                     }
                     break;
                 }
             }
         }
         let text = ''
-        extractList.forEach(persona => {
-            text += `${persona.star}성 ${persona.name} ${persona.inmate} ${persona.walpu ? '발푸!' : ''}\n`
+        extractList.forEach(p => {
+            if(p.type == 'character') {
+                text += `${p.result.star}성 ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '발푸!' : ''}\n`
+            } else {
+                text += `[${p.result.rating}] ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '발푸!' : ''}\n`
+            }
         });
         await interaction.editReply({ content: text });
     }
