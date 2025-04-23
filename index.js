@@ -219,7 +219,7 @@ client.on(Events.InteractionCreate, async interaction => {
             for (let j = 0; j < weight.length; j++) {
                 weightSum += weight[j].weight;
                 if (randomValue <= weightSum) {
-                    if (weight[j].star == 'EGO') {
+                    if (weight[j].star == 'ego') {
                         const resultEgo = egoList[Math.floor(Math.random() * egoList.length)];
                         extractList.push({
                             type: 'ego',
