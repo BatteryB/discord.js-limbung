@@ -214,7 +214,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         let extractList = []
         for (let i = 0; i < count; i++) {
-            const randomValue = 100.1 //Math.random() * totalWeight;
+            const randomValue = Math.random() * totalWeight;
             let weightSum = 0;
             for (let j = 0; j < weight.length; j++) {
                 weightSum += weight[j].weight;
