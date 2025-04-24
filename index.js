@@ -256,7 +256,8 @@ client.on(Events.InteractionCreate, async interaction => {
                         const resultEgo = egoList[Math.floor(Math.random() * egoList.length)];
                         extractList.push({
                             type: 'ego',
-                            result: resultEgo
+                            result: resultEgo, 
+                            disable: false
                         });
 
                         // 림버스에서 EGO는 중복이 나오지 않기 떄문에 뽑으면 제거
@@ -265,13 +266,15 @@ client.on(Events.InteractionCreate, async interaction => {
                         const resultAnno = annoList[Math.floor(Math.random() * annoList.length)];
                         extractList.push({
                             type: 'anno',
-                            result: resultAnno
+                            result: resultAnno, 
+                            disable: false
                         });
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
                         extractList.push({
                             type: 'character',
-                            result: character[Math.floor(Math.random() * character.length)]
+                            result: character[Math.floor(Math.random() * character.length)], 
+                            disable: false
                         });
                     }
                     break;
@@ -279,6 +282,13 @@ client.on(Events.InteractionCreate, async interaction => {
             }
         }
 
+        const response = await interaction.editReply({
+            embed
+        })
+
+        const collector = response.createMessageComponentCollector({
+            time: 500_000 // 5분
+        });
 
         let text = ''
         extractList.forEach(p => {
@@ -310,6 +320,63 @@ function giftEmbedBuilder(giftArr) {
     });
 
     return embed;
+}
+
+function embedBuilder(color) {
+    return new EmbedBuilder()
+        .setColor(color);
+};
+
+function drawButton(list) {
+    const row1 = new ActionRowBuilder();
+    const row2 = new ActionRowBuilder();
+
+    list.forEach((res, i) => {
+        let color;
+        if(res.result.walpu) {
+            color = ButtonStyle.Success;
+        } else if(
+            res.result.star == 3 ||
+            res.result.star == 'ego' ||
+            res.result.star == 'anno'
+        ) {
+            color = ButtonStyle.Primary;
+        } else if(res.result.star == 2) {
+            color = ButtonStyle.Danger;
+        } else {
+            color = ButtonStyle.Secondary;
+        }
+
+        if(i > 5) {
+            row1.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(i)
+                    .setLabel('ㅤ')
+                    .setStyle(color)
+                    .setDisabled(res.disable)
+            );
+        } else {
+            row2.addComponents(
+                new ButtonBuilder()
+                    .setCustomId(i)
+                    .setLabel('ㅤ')
+                    .setStyle(color)
+                    .setDisabled(res.disable)
+            );
+        }
+    });
+
+    const all = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('all')
+            .setLabel('전체확인')
+    )
+
+    return {
+        row1: row1, 
+        row2: row2, 
+        all: all
+    }
 }
 
 function giftInfoEmbedBuilder(gift, effect) {
