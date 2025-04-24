@@ -1,11 +1,11 @@
 // TODO
-// 추출 결과 임베드로 출력, 연출(?) 넣기 
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { stringify } from 'querystring';
 
 dotenv.config({ path: 'env/token.env' });
 const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'egoGift.db'));
@@ -256,7 +256,7 @@ client.on(Events.InteractionCreate, async interaction => {
                         const resultEgo = egoList[Math.floor(Math.random() * egoList.length)];
                         extractList.push({
                             type: 'ego',
-                            result: resultEgo, 
+                            result: resultEgo,
                             disable: false
                         });
 
@@ -266,14 +266,14 @@ client.on(Events.InteractionCreate, async interaction => {
                         const resultAnno = annoList[Math.floor(Math.random() * annoList.length)];
                         extractList.push({
                             type: 'anno',
-                            result: resultAnno, 
+                            result: resultAnno,
                             disable: false
                         });
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
                         extractList.push({
                             type: 'character',
-                            result: character[Math.floor(Math.random() * character.length)], 
+                            result: character[Math.floor(Math.random() * character.length)],
                             disable: false
                         });
                     }
@@ -282,25 +282,62 @@ client.on(Events.InteractionCreate, async interaction => {
             }
         }
 
+        let embedColor;
+        if (extractList.some(item => item.result.walpu == 1)) {
+            embedColor = 'Green';
+        } else if (extractList.some(item => item.result.star === 3 || item.result.star === 'anno' || item.result.star === 'ego')) {
+            embedColor = 'Yellow';
+        } else {
+            embedColor = 'Red';
+        }
+
+        let embed = embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ');
+        let { row1, row2, all } = drawButton(extractList);
+
         const response = await interaction.editReply({
-            embed
+            embeds: [embed],
+            components: count == 1 ? [row1] : [row1, row2, all]
         })
 
         const collector = response.createMessageComponentCollector({
             time: 500_000 // 5분
         });
 
-        let text = ''
-        extractList.forEach(p => {
-            if (p.type == 'character') {
-                text += `${p.result.star}성 ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
-            } else if (p.type == 'anno') {
-                text += `[아나운서] ${p.result.name}  ${p.result.walpu ? '***__발푸!__***' : ''}\n`
+        let resTxt = '';
+        collector.on('collect', async i => {
+            if (i.customId == 'all') {
+                extractList.forEach((item, i) => {
+                    if(!item.disable) {
+                        resTxt += drawResult(item);
+                        item.disable = true;
+                    }
+                });
             } else {
-                text += `[${p.result.rating}] ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
+                resTxt += drawResult(extractList[Number(i.customId)]);
+                extractList[Number(i.customId)].disable = true;
             }
-        });
-        await interaction.editReply({ content: text });
+
+            ({ row1, row2, all } = drawButton(extractList));
+            embed = embedBuilder(embedColor).setDescription(resTxt);
+            
+            await i.update({
+                embeds: [embed],
+                components: count == 1 ? [row1] : [row1, row2, all]
+            })
+
+            if (extractList.every(item => item.disable == true) || extractList.length <= 0) {
+                collector.stop();
+            }
+
+            return;
+        })
+
+        collector.on('end', async () => {
+            await interaction.editReply({
+                embeds: [embed],
+                components: [row1, row2]
+            });
+        })
     }
 });
 
@@ -317,7 +354,7 @@ function giftEmbedBuilder(giftArr) {
             value: `${gift.keyword} / ${gift.tire}티어`
         });
         idx++;
-    });
+    });6
 
     return embed;
 }
@@ -333,24 +370,24 @@ function drawButton(list) {
 
     list.forEach((res, i) => {
         let color;
-        if(res.result.walpu) {
+        if (res.result.walpu) {
             color = ButtonStyle.Success;
-        } else if(
-            res.result.star == 3 ||
-            res.result.star == 'ego' ||
-            res.result.star == 'anno'
+        } else if (
+            res.type == 3 ||
+            res.type == 'ego' ||
+            res.type == 'anno'
         ) {
             color = ButtonStyle.Primary;
-        } else if(res.result.star == 2) {
+        } else if (res.result.star == 2) {
             color = ButtonStyle.Danger;
         } else {
             color = ButtonStyle.Secondary;
         }
 
-        if(i > 5) {
+        if (i < 5) {
             row1.addComponents(
                 new ButtonBuilder()
-                    .setCustomId(i)
+                    .setCustomId(String(i))
                     .setLabel('ㅤ')
                     .setStyle(color)
                     .setDisabled(res.disable)
@@ -358,7 +395,7 @@ function drawButton(list) {
         } else {
             row2.addComponents(
                 new ButtonBuilder()
-                    .setCustomId(i)
+                    .setCustomId(String(i))
                     .setLabel('ㅤ')
                     .setStyle(color)
                     .setDisabled(res.disable)
@@ -370,12 +407,23 @@ function drawButton(list) {
         new ButtonBuilder()
             .setCustomId('all')
             .setLabel('전체확인')
+            .setStyle(ButtonStyle.Secondary)
     )
 
     return {
-        row1: row1, 
-        row2: row2, 
+        row1: row1,
+        row2: row2,
         all: all
+    }
+}
+
+function drawResult(drow) {
+    if (drow.type == 'character') {
+        return `[${'0'.repeat(Number(drow.result.star))}] ${drow.result.name} ${drow.result.inmate}\n`
+    } else if (drow.type == 'anno') {
+        return `[아나운서] ${drow.result.name}\n`
+    } else {
+        return `[${drow.result.rating}] ${drow.result.name} ${drow.result.inmate}\n`
     }
 }
 
