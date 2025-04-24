@@ -1,3 +1,6 @@
+// TODO
+// 추출 결과 임베드로 출력, 연출(?) 넣기 
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
@@ -169,13 +172,26 @@ client.on(Events.InteractionCreate, async interaction => {
         await interaction.deferReply();
         const count = interaction.options.getNumber('횟수');
         const walpu = interaction.options.getNumber('발푸르기스의밤');
+        const anno = interaction.options.getNumber('아나운서');
 
-        const weight = db.prepare(`
+        let weightQuery = `
                 select 
                     star, 
                     weight
                 from prob
-            `).all();
+                where type = 
+            `;
+
+        // if (count == 9) {
+        //     count++;
+        //     weightQuery += anno ? "'anPickWeight'" : "'pickWeight'";
+        // } else {
+        //     weightQuery += anno ? "'anWeight'" : "'weight'";
+        // }
+        weightQuery += anno ? "'anWeight'" : "'weight'";
+
+
+        const weight = db.prepare(weightQuery).all();
         const totalWeight = weight.reduce((sum, item) => sum + item.weight, 0);
 
         let characterQuery = `
@@ -203,18 +219,35 @@ client.on(Events.InteractionCreate, async interaction => {
             WHERE 1=1
         `;
 
+        let annoQuery = `
+            SELECT
+                name, 
+                walpu
+            FROM anno 
+            WHERE 1=1
+        `
+
         if (walpu == '0' || walpu == undefined) {
             characterQuery += ` AND walpu = 0`;
             egoQuery += ` AND walpu = 0`;
+            annoQuery += ` AND walpu = 0`;
         }
 
         const characterList = db.prepare(characterQuery).all();
-
         const egoList = db.prepare(egoQuery).all();
+        const annoList = db.prepare(annoQuery).all();
 
         let extractList = []
         for (let i = 0; i < count; i++) {
             const randomValue = Math.random() * totalWeight;
+
+            // 10연차는 마지막에 2성 이상 확정
+            if (count == 10 && i == 9) {
+                let star2 = weight.find((data) => data.star == 2);
+                let star1 = weight.find((data) => data.star == 1);
+                star2.weight += star1.weight;
+                star1.weight = 0;
+            }
             let weightSum = 0;
             for (let j = 0; j < weight.length; j++) {
                 weightSum += weight[j].weight;
@@ -228,6 +261,12 @@ client.on(Events.InteractionCreate, async interaction => {
 
                         // 림버스에서 EGO는 중복이 나오지 않기 떄문에 뽑으면 제거
                         egoList.splice(egoList.findIndex(e => e.id == resultEgo.id), 1);
+                    } else if (weight[j].star == 'anno') {
+                        const resultAnno = annoList[Math.floor(Math.random() * annoList.length)];
+                        extractList.push({
+                            type: 'anno',
+                            result: resultAnno
+                        });
                     } else {
                         const character = characterList.filter(char => char.star == weight[j].star);
                         extractList.push({
@@ -239,10 +278,14 @@ client.on(Events.InteractionCreate, async interaction => {
                 }
             }
         }
+
+
         let text = ''
         extractList.forEach(p => {
-            if(p.type == 'character') {
+            if (p.type == 'character') {
                 text += `${p.result.star}성 ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
+            } else if (p.type == 'anno') {
+                text += `[아나운서] ${p.result.name}  ${p.result.walpu ? '***__발푸!__***' : ''}\n`
             } else {
                 text += `[${p.result.rating}] ${p.result.name} ${p.result.inmate} ${p.result.walpu ? '***__발푸!__***' : ''}\n`
             }

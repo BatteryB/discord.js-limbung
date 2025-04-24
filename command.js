@@ -124,27 +124,47 @@ const commands = [
         options: [
             {
                 name: '횟수',
-                description: '추출횟수를 지정합니다. (필수)',
+                description: '추출횟수를 지정합니다.(현재 림버스 인게임 픽업을 따라갑니다.) (필수)',
                 type: 10,
                 required: true,
                 choices: [
                     {
-                        name: "1회추출",
+                        name: "1회",
                         value: 1
                     },
                     {
-                        name: "10회추출", 
+                        name: "10회", 
                         value: 10
                     },
-                    {
-                        name: "3성확정", 
-                        value: 9
-                    },
+                    // {
+                    //     name: "픽업", 
+                    //     value: 9
+                    // },
+                    // {
+                    //     name: "특정", 
+                    //     value: 8
+                    // },
                 ]
             },
             {
                 name: '발푸르기스의밤',
                 description: '발푸르기스의밤 인격, E.G.O 포함 여부를 결정합니다.(기본 미포함) (선택)',
+                type: 10,
+                required: false,
+                choices: [
+                    {
+                        name: "포함",
+                        value: 1
+                    },
+                    {
+                        name: "미포함", 
+                        value: 0
+                    }
+                ]
+            },
+            {
+                name: '아나운서',
+                description: '추출 아나운서 포함 여부를 결정합니다.(기본 미포함) (선택)',
                 type: 10,
                 required: false,
                 choices: [
