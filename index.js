@@ -285,7 +285,7 @@ client.on(Events.InteractionCreate, async interaction => {
         let embedColor;
         if (extractList.some(item => item.result.walpu == 1)) {
             embedColor = 'Green';
-        } else if (extractList.some(item => item.result.star === 3 || item.result.star === 'anno' || item.result.star === 'ego')) {
+        } else if (extractList.some(item => item.result.star === 3 || item.type === 'anno' || item.type === 'ego')) {
             embedColor = 'Yellow';
         } else {
             embedColor = 'Red';
@@ -368,12 +368,13 @@ function drawButton(list) {
     const row1 = new ActionRowBuilder();
     const row2 = new ActionRowBuilder();
 
+    console.log(JSON.stringify(list, null, 4))
     list.forEach((res, i) => {
         let color;
         if (res.result.walpu) {
             color = ButtonStyle.Success;
         } else if (
-            res.type == 3 ||
+            res.result.star == 3 ||
             res.type == 'ego' ||
             res.type == 'anno'
         ) {
