@@ -133,7 +133,7 @@ const commands = [
                         value: 1
                     },
                     {
-                        name: "10회", 
+                        name: "10회",
                         value: 10
                     },
                     // {
@@ -157,7 +157,7 @@ const commands = [
                         value: 1
                     },
                     {
-                        name: "미포함", 
+                        name: "미포함",
                         value: 0
                     }
                 ]
@@ -173,11 +173,35 @@ const commands = [
                         value: 1
                     },
                     {
-                        name: "미포함", 
+                        name: "미포함",
                         value: 0
                     }
                 ]
             },
+            {
+                name: '추출계산',
+                description: '광기, 티켓으로 총 추출 횟수를 계산합니다.',
+                options: [
+                    {
+                        name: '광기',
+                        description: '광기 갯수(필수)',
+                        type: 10,
+                        required: true,
+                    },
+                    {
+                        name: '1회티켓',
+                        description: '1회티켓 갯수(필수)',
+                        type: 10,
+                        required: true,
+                    },
+                    {
+                        name: '10회티켓',
+                        description: '10회티켓 갯수(필수)',
+                        type: 10,
+                        required: true,
+                    },
+                ]
+            }
         ]
     }
 ];
