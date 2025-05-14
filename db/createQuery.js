@@ -50,7 +50,7 @@ export function drawQuery({ walpu, anno }) {
                     star, 
                     weight
                 from prob
-                where type = n${anno ? "'anWeight'" : "'weight'"}
+                where type = ${anno ? "'anWeight'" : "'weight'"}
             `;
 
     let characterQuery = `

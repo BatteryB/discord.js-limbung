@@ -4,7 +4,6 @@ export function drawButton(list) {
     const row1 = new ActionRowBuilder();
     const row2 = new ActionRowBuilder();
 
-    console.log(JSON.stringify(list, null, 4))
     list.forEach((res, i) => {
         let color;
         if (res.result.walpu) {
@@ -80,8 +79,7 @@ export function pageButtonBuilder() {
         )
 }
 
-export
-    function effectButtonBuilder(gift) {
+export function effectButtonBuilder(gift) {
     if (gift.effect2 != 'none') {
         var row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
