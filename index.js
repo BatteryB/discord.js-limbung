@@ -1,11 +1,16 @@
 // TODO
+// 함수 모듈화하기
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, EmbedBuilder, Events, GatewayIntentBits, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Events, GatewayIntentBits } from 'discord.js';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { stringify } from 'querystring';
+
+// export
+import { giftQuery, drawQuery } from './db/createQuery.js';
+import { embedBuilder, giftEmbedBuilder, giftInfoEmbedBuilder } from './components/embedBuilder.js';
+import { drawButton, effectButtonBuilder, pageButtonBuilder } from './components/buttonBuilder.js';
 
 dotenv.config({ path: 'env/token.env' });
 const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'egoGift.db'));
@@ -22,53 +27,15 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.commandName == '에고기프트') {
         await interaction.deferReply();
 
-        const tire = interaction.options.getString('티어');
-        const keyword = interaction.options.getString('키워드');
-        const name = interaction.options.getString('이름');
-        const material = interaction.options.getString('재료');
-        const type = interaction.options.getString('타입');
-
-        // 기본 쿼리문과 파라미터 선언
-        let query = `
-            SELECT 
-                g.name, 
-                k.name as 'keyword', 
-                g.tire, 
-                g.cost, 
-                g.comb, 
-                g.hard, 
-                g.limited, 
-                g.effect1, 
-                g.effect2, 
-                g.effect3 
-            FROM gift g 
-            JOIN keyword k ON g.keyword = k.id 
-            WHERE 1 = 1
-        `;
-        let queryParams = [];
-
-        // where문 쿼리추가, 파라미터 추가
-        if (tire) {
-            query += ` AND g.tire = ?`;
-            queryParams.push(tire);
-        }
-        if (keyword) {
-            query += ` AND g.keyword = ?`;
-            queryParams.push(keyword);
-        }
-        if (name) {
-            query += ` AND g.name LIKE ?`;
-            queryParams.push(`%${name}%`);
-        }
-        if (material) {
-            query += ` AND g.comb LIKE ?`;
-            queryParams.push(`%${material}%`);
-        }
-        if (type) {
-            query += type == '일반' ? ` AND g.comb = 'none'` : ` AND g.comb != 'none'`
+        const options = {
+            "tire": interaction.options.getString('티어'),
+            "keyword": interaction.options.getString('키워드'),
+            "name": interaction.options.getString('이름'),
+            "material": interaction.options.getString('재료'),
+            "type": interaction.options.getString('타입'),
         }
 
-        query += ` ORDER BY g.tire, g.keyword`
+        const { query, queryParams } = giftQuery(options);
 
         const giftResult = db.prepare(query).all(...queryParams);
 
@@ -121,14 +88,9 @@ client.on(Events.InteractionCreate, async interaction => {
                     embeds: [embed]
                 });
             } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) {
-                let effect;
-                if (i.customId == 'effect1') {
-                    effect = selectGift.effect1;
-                } else if (i.customId == 'effect2') {
-                    effect = selectGift.effect2;
-                } else if (i.customId == 'effect3') {
-                    effect = selectGift.effect3;
-                }
+                // replace로 effect제거 후 뒤에 숫자만 남김, 이후 effect(숫자) 조합으로 바로 값 찾기
+                const effectKey = i.customId.replace('effect', '');
+                const effect = selectGift[`effect${effectKey}`];
 
                 await i.update({
                     embeds: [giftInfoEmbedBuilder(selectGift, effect)]
@@ -171,67 +133,16 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.commandName == '추출') {
         await interaction.deferReply();
         const count = interaction.options.getNumber('횟수');
-        const walpu = interaction.options.getNumber('발푸르기스의밤');
-        const anno = interaction.options.getNumber('아나운서');
 
-        let weightQuery = `
-                select 
-                    star, 
-                    weight
-                from prob
-                where type = 
-            `;
+        const options = {
+            walpu: interaction.options.getNumber('발푸르기스의밤'),
+            anno: interaction.options.getNumber('아나운서'),
+        }
 
-        // if (count == 9) {
-        //     count++;
-        //     weightQuery += anno ? "'anPickWeight'" : "'pickWeight'";
-        // } else {
-        //     weightQuery += anno ? "'anWeight'" : "'weight'";
-        // }
-        weightQuery += anno ? "'anWeight'" : "'weight'";
-
+        const { weightQuery, characterQuery, egoQuery, annoQuery } = drawQuery(options);
 
         const weight = db.prepare(weightQuery).all();
         const totalWeight = weight.reduce((sum, item) => sum + item.weight, 0);
-
-        let characterQuery = `
-            SELECT 
-                i.id,
-                i.name as 'inmate',
-                p.star,
-                p.name, 
-                p.walpu
-            FROM persona p
-            JOIN inmate i ON i.id = p.inmate
-            WHERE 1=1
-        `;
-
-        let egoQuery = `
-            SELECT 
-                e.id, 
-                i.name as 'inmate', 
-                e.name, 
-                r.rating, 
-                e.walpu
-            FROM ego e
-            JOIN inmate i ON i.id = e.inmate
-            JOIN egoRating r ON r.id = e.rating
-            WHERE 1=1
-        `;
-
-        let annoQuery = `
-            SELECT
-                name, 
-                walpu
-            FROM anno 
-            WHERE 1=1
-        `
-
-        if (walpu == '0' || walpu == undefined) {
-            characterQuery += ` AND walpu = 0`;
-            egoQuery += ` AND walpu = 0`;
-            annoQuery += ` AND walpu = 0`;
-        }
 
         const characterList = db.prepare(characterQuery).all();
         const egoList = db.prepare(egoQuery).all();
@@ -307,7 +218,7 @@ client.on(Events.InteractionCreate, async interaction => {
         collector.on('collect', async i => {
             if (i.customId == 'all') {
                 extractList.forEach((item, i) => {
-                    if(!item.disable) {
+                    if (!item.disable) {
                         resTxt += drawResult(item);
                         item.disable = true;
                     }
@@ -319,7 +230,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
             ({ row1, row2, all } = drawButton(extractList));
             embed = embedBuilder(embedColor).setDescription(resTxt);
-            
+
             await i.update({
                 embeds: [embed],
                 components: count == 1 ? [row1] : [row1, row2, all]
@@ -341,83 +252,6 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-function giftEmbedBuilder(giftArr) {
-    const embed = new EmbedBuilder()
-        .setTitle('에고기프트 검색결과')
-        .setColor('DarkRed');
-
-    // 페이징 목록 표시
-    let idx = 1;
-    giftArr.forEach(gift => {
-        embed.addFields({
-            name: `${idx}. ${gift.name}`,
-            value: `${gift.keyword} / ${gift.tire}티어`
-        });
-        idx++;
-    });6
-
-    return embed;
-}
-
-function embedBuilder(color) {
-    return new EmbedBuilder()
-        .setColor(color);
-};
-
-function drawButton(list) {
-    const row1 = new ActionRowBuilder();
-    const row2 = new ActionRowBuilder();
-
-    console.log(JSON.stringify(list, null, 4))
-    list.forEach((res, i) => {
-        let color;
-        if (res.result.walpu) {
-            color = ButtonStyle.Success;
-        } else if (
-            res.result.star == 3 ||
-            res.type == 'ego' ||
-            res.type == 'anno'
-        ) {
-            color = ButtonStyle.Primary;
-        } else if (res.result.star == 2) {
-            color = ButtonStyle.Danger;
-        } else {
-            color = ButtonStyle.Secondary;
-        }
-
-        if (i < 5) {
-            row1.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(String(i))
-                    .setLabel('ㅤ')
-                    .setStyle(color)
-                    .setDisabled(res.disable)
-            );
-        } else {
-            row2.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(String(i))
-                    .setLabel('ㅤ')
-                    .setStyle(color)
-                    .setDisabled(res.disable)
-            );
-        }
-    });
-
-    const all = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId('all')
-            .setLabel('전체확인')
-            .setStyle(ButtonStyle.Secondary)
-    )
-
-    return {
-        row1: row1,
-        row2: row2,
-        all: all
-    }
-}
-
 function drawResult(drow) {
     if (drow.type == 'character') {
         return `[${'0'.repeat(Number(drow.result.star))}] ${drow.result.name} ${drow.result.inmate}\n`
@@ -428,73 +262,4 @@ function drawResult(drow) {
     }
 }
 
-function giftInfoEmbedBuilder(gift, effect) {
-    const embed = new EmbedBuilder()
-        .setTitle(gift.name)
-        .setDescription(`${gift.hard ? '하드 전용 기프트' : ''}\n${gift.limited != 'none' ? `"${gift.limited}" 전용` : ''}`)
-        .addFields(
-            { name: '키워드', value: gift.keyword, inline: true },
-            { name: '티어', value: gift.tire.toString(), inline: true },
-            { name: '가격', value: gift.cost.toString(), inline: true },
-        )
-        .setColor('DarkRed');
-
-    if (gift.comb != 'none') {
-        embed.addFields({ name: '조합식', value: gift.comb });
-    }
-    embed.addFields({ name: '효과', value: effect });
-
-    return embed;
-}
-
-function pageButtonBuilder() {
-    return new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('back')
-                .setLabel('⏪이전')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('0')
-                .setLabel('1️⃣')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('1')
-                .setLabel('2️⃣')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('2')
-                .setLabel('3️⃣')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('next')
-                .setLabel('다음⏩')
-                .setStyle(ButtonStyle.Primary),
-        )
-}
-
-function effectButtonBuilder(gift) {
-    if (gift.effect2 != 'none') {
-        var row = new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId('effect1')
-                .setLabel('기본효과')
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId('effect2')
-                .setLabel('1강')
-                .setStyle(ButtonStyle.Primary),
-        )
-    }
-    if (gift.effect3 != 'none') {
-        row.addComponents(
-            new ButtonBuilder()
-                .setCustomId('effect3')
-                .setLabel('2강')
-                .setStyle(ButtonStyle.Primary),
-        )
-    }
-
-    return row;
-}
 client.login(process.env.TOKEN);
