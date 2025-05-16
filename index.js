@@ -253,9 +253,9 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 
     if (interaction.commandName == '추출횟수계산') {
-        const lunacy = interaction.options.getNumber('광기');
-        const ticket1 = interaction.options.getNumber('1회티켓');
-        const ticket10 = interaction.options.getNumber('10회티켓');
+        const lunacy = interaction.options.getNumber('광기') ?? 0;
+        const ticket1 = interaction.options.getNumber('1회티켓') ?? 0;
+        const ticket10 = interaction.options.getNumber('10회티켓') ?? 0;
 
         if (!lunacy && !ticket1 && !ticket10) {
             await interaction.reply({
@@ -269,18 +269,15 @@ client.on(Events.InteractionCreate, async interaction => {
         const embed = embedBuilder('DarkRed').setTitle('추출 횟수 계산');
 
         const fields = [
-            { name: '광기', value: `${lunacy}개`, condition: lunacy },
-            { name: '1회티켓', value: `${ticket1}개`, condition: ticket1 },
-            { name: '10회티켓', value: `${ticket10}개`, condition: ticket10 }
-        ]
+            lunacy ? { name: '광기', value: `${lunacy}개`, inline: true } : null,
+            ticket1 ? { name: '1회티켓', value: `${ticket1}개`, inline: true } : null,
+            ticket10 ? { name: '10회티켓', value: `${ticket10}개`, inline: true } : null
+        ].filter(Boolean);
 
-        fields.forEach(field => {
-            if (field.condition) {
-                embed.addFields({ name: field.name, value: field.value, inline: true });
-            }
-        });
-
-        embed.addFields({ name: '총 추출 횟수', value: `${Math.floor((lunacy / 130) + ticket1 + (ticket10 * 10))}회` })
+        embed.addFields(
+            ...fields,
+            { name: '총 추출 횟수', value: `${Math.floor((lunacy / 130) + ticket1 + (ticket10 * 10))}회` }
+        );
 
         await interaction.editReply({
             embeds: [embed]

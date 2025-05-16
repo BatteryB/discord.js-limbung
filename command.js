@@ -6,11 +6,11 @@ dotenv.config({ path: 'env/token.env' });
 const commands = [
     {
         name: '에고기프트',
-        description: '에고기프트를 검색합니다. (모든 옵션을 적을 필요는 없습니다!)',
+        description: '에고기프트를 검색합니다.',
         options: [
             {
                 name: '티어',
-                description: '티어로 검색하기 (선택)',
+                description: '티어로 검색하기 (선택입력)',
                 type: 3,
                 required: false,
                 choices: [
@@ -38,7 +38,7 @@ const commands = [
             },
             {
                 name: '키워드',
-                description: '키워드로 검색하기 (선택)',
+                description: '키워드로 검색하기 (선택입력)',
                 type: 3,
                 required: false,
                 choices: [
@@ -90,19 +90,19 @@ const commands = [
             },
             {
                 name: '이름',
-                description: '이름으로 검색하기 (선택)',
+                description: '이름으로 검색하기 (선택입력)',
                 type: 3,
                 required: false
             },
             {
                 name: '재료',
-                description: '재료 이름으로 검색하기 (선택)',
+                description: '재료 이름으로 검색하기 (선택입력)',
                 type: 3,
                 required: false
             },
             {
                 name: '타입',
-                description: '일반 or 조합 기프트만 검색하기 (선택)',
+                description: '일반 or 조합 기프트만 검색하기 (선택입력)',
                 type: 3,
                 required: false,
                 choices: [
@@ -120,11 +120,11 @@ const commands = [
     },
     {
         name: '추출',
-        description: '인격, E.G.O 추출을 진행합니다. (모든 옵션을 적을 필요는 없습니다!)',
+        description: '인격, E.G.O 추출을 진행합니다.',
         options: [
             {
                 name: '횟수',
-                description: '추출횟수를 지정합니다.(현재 림버스 인게임 픽업을 따라갑니다.) (필수)',
+                description: '추출횟수를 지정합니다.(현재 림버스 인게임 픽업을 따라갑니다.) (필수입력력)',
                 type: 10,
                 required: true,
                 choices: [
@@ -148,7 +148,7 @@ const commands = [
             },
             {
                 name: '발푸르기스의밤',
-                description: '발푸르기스의밤 인격, E.G.O 포함 여부를 결정합니다.(기본 미포함) (선택)',
+                description: '발푸르기스의밤 인격, E.G.O 포함 여부를 결정합니다.(기본 미포함) (선택입력)',
                 type: 10,
                 required: false,
                 choices: [
@@ -164,7 +164,7 @@ const commands = [
             },
             {
                 name: '아나운서',
-                description: '추출 아나운서 포함 여부를 결정합니다.(기본 미포함) (선택)',
+                description: '추출 아나운서 포함 여부를 결정합니다.(기본 미포함) (선택입력)',
                 type: 10,
                 required: false,
                 choices: [
@@ -186,19 +186,19 @@ const commands = [
         options: [
             {
                 name: '광기',
-                description: '광기 갯수(선택)',
+                description: '광기 갯수(선택입력)',
                 type: 10,
                 required: false,
             },
             {
                 name: '1회티켓',
-                description: '1회티켓 갯수(선택)',
+                description: '1회티켓 갯수(선택입력)',
                 type: 10,
                 required: false,
             },
             {
                 name: '10회티켓',
-                description: '10회티켓 갯수(선택)',
+                description: '10회티켓 갯수(선택입력)',
                 type: 10,
                 required: false,
             },
