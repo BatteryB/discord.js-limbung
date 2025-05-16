@@ -178,30 +178,30 @@ const commands = [
                     }
                 ]
             },
+        ]
+    },
+    {
+        name: '추출횟수계산',
+        description: '광기, 티켓의 총 추출 횟수를 계산합니다.',
+        options: [
             {
-                name: '추출계산',
-                description: '광기, 티켓으로 총 추출 횟수를 계산합니다.',
-                options: [
-                    {
-                        name: '광기',
-                        description: '광기 갯수(필수)',
-                        type: 10,
-                        required: true,
-                    },
-                    {
-                        name: '1회티켓',
-                        description: '1회티켓 갯수(필수)',
-                        type: 10,
-                        required: true,
-                    },
-                    {
-                        name: '10회티켓',
-                        description: '10회티켓 갯수(필수)',
-                        type: 10,
-                        required: true,
-                    },
-                ]
-            }
+                name: '광기',
+                description: '광기 갯수(선택)',
+                type: 10,
+                required: false,
+            },
+            {
+                name: '1회티켓',
+                description: '1회티켓 갯수(선택)',
+                type: 10,
+                required: false,
+            },
+            {
+                name: '10회티켓',
+                description: '10회티켓 갯수(선택)',
+                type: 10,
+                required: false,
+            },
         ]
     }
 ];

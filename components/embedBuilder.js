@@ -1,5 +1,10 @@
 import { EmbedBuilder } from "discord.js";
 
+export function embedBuilder(color) {
+    return new EmbedBuilder()
+        .setColor(color);
+};
+
 export function giftEmbedBuilder(giftArr) {
     const embed = new EmbedBuilder()
         .setTitle('에고기프트 검색결과')
@@ -17,11 +22,6 @@ export function giftEmbedBuilder(giftArr) {
 
     return embed;
 }
-
-export function embedBuilder(color) {
-    return new EmbedBuilder()
-        .setColor(color);
-};
 
 export function giftInfoEmbedBuilder(gift, effect) {
     const embed = new EmbedBuilder()
