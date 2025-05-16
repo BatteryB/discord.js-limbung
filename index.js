@@ -203,7 +203,7 @@ client.on(Events.InteractionCreate, async interaction => {
             embedColor = 'Red';
         }
 
-        let embed = embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ');
+        let embed = embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤ');
         let { row1, row2, all } = drawButton(extractList);
 
         const response = await interaction.editReply({
@@ -269,14 +269,14 @@ client.on(Events.InteractionCreate, async interaction => {
         const embed = embedBuilder('DarkRed').setTitle('추출 횟수 계산');
 
         const fields = [
-            lunacy ? { name: '광기', value: `${lunacy}개`, inline: true } : null,
-            ticket1 ? { name: '1회티켓', value: `${ticket1}개`, inline: true } : null,
-            ticket10 ? { name: '10회티켓', value: `${ticket10}개`, inline: true } : null
+            lunacy ? { name: '광기', value: `**${lunacy}개**`, inline: true } : null,
+            ticket1 ? { name: '1회티켓', value: `**${ticket1}개**`, inline: true } : null,
+            ticket10 ? { name: '10회티켓', value: `**${ticket10}개**`, inline: true } : null
         ].filter(Boolean);
 
         embed.addFields(
             ...fields,
-            { name: '총 추출 횟수', value: `${Math.floor((lunacy / 130) + ticket1 + (ticket10 * 10))}회` }
+            { name: '총 추출 횟수', value: `__**${Math.floor((lunacy / 130) + ticket1 + (ticket10 * 10))}회**__` }
         );
 
         await interaction.editReply({
