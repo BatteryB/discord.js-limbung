@@ -1,5 +1,5 @@
 // TODO
-// 함수 모듈화하기
+// 이제 여기서 뭘 개선하고 어떤 기능을 추가해야할지 머리 짜내기
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Events, GatewayIntentBits } from 'discord.js';
 import Database from 'better-sqlite3';
@@ -136,8 +136,9 @@ client.on(Events.InteractionCreate, async interaction => {
         const count = interaction.options.getNumber('횟수');
 
         const options = {
-            walpu: interaction.options.getNumber('발푸르기스의밤'),
-            anno: interaction.options.getNumber('아나운서'),
+            inmate: interaction.options.getNumber('수감자') ?? 0,
+            walpu: interaction.options.getNumber('발푸르기스의밤') ?? 0,
+            anno: interaction.options.getNumber('아나운서') ?? 0,
         }
 
         const { weightQuery, characterQuery, egoQuery, annoQuery } = drawQuery(options);
@@ -198,7 +199,7 @@ client.on(Events.InteractionCreate, async interaction => {
         if (extractList.some(item => item.result.walpu == 1)) {
             embedColor = 'Green';
         } else if (extractList.some(item => item.result.star === 3 || item.type === 'anno' || item.type === 'ego')) {
-            embedColor = 'Yellow';
+            embedColor = 'Yellow'; 
         } else {
             embedColor = 'Red';
         }
@@ -252,7 +253,7 @@ client.on(Events.InteractionCreate, async interaction => {
         })
     }
 
-    if (interaction.commandName == '추출횟수계산') {
+    if (interaction.commandName === '추출횟수계산') {
         const lunacy = interaction.options.getNumber('광기') ?? 0;
         const ticket1 = interaction.options.getNumber('1회티켓') ?? 0;
         const ticket10 = interaction.options.getNumber('10회티켓') ?? 0;

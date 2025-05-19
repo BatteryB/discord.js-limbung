@@ -143,7 +143,67 @@ const commands = [
                     // {
                     //     name: "특정", 
                     //     value: 8
-                    // },
+                        // },
+                ]
+            },
+            {
+                name: '수감자',
+                description: '특정 수감자만 추출에 포함시킵니다.(기본 미포함) (선택입력)',
+                type: 10,
+                required: false,
+                choices: [
+                    {
+                        name: "미포함",
+                        value: 0
+                    },
+                    {
+                        name: "이상",
+                        value: 1
+                    },
+                    {
+                        name: "파우스트",
+                        value: 2
+                    },
+                    {
+                        name: "돈키호테",
+                        value: 3
+                    },
+                    {
+                        name: "료슈",
+                        value: 4
+                    },
+                    {
+                        name: "뫼르소",
+                        value: 5
+                    },
+                    {
+                        name: "홍루",
+                        value: 6
+                    },
+                    {
+                        name: "히스클리프",
+                        value: 7
+                    },
+                    {
+                        name: "이스마엘",
+                        value: 8
+                    },
+                    {
+                        name: "로쟈",
+                        value: 9
+                    },
+                    {
+                        name: "싱클레어",
+                        value: 11
+                    },
+                    {
+                        name: "오티스",
+                        value: 12
+                    },
+                    {
+                        name: "그레고르",
+                        value: 13
+                    },
                 ]
             },
             {

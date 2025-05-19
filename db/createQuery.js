@@ -44,13 +44,14 @@ export function giftQuery({ tire, keyword, name, material, type }) {
     return { query, queryParams };
 }
 
-export function drawQuery({ walpu, anno }) {
+export function drawQuery({ inmate, walpu, anno }) {
     let weightQuery = `
-                select 
+                SELECT 
                     star, 
                     weight
-                from prob
-                where type = ${anno ? "'anWeight'" : "'weight'"}
+                FROM prob
+                WHERE 
+                    type = ${anno ? "'anWeight'" : "'weight'"}
             `;
 
     let characterQuery = `
@@ -63,6 +64,7 @@ export function drawQuery({ walpu, anno }) {
             FROM persona p
             JOIN inmate i ON i.id = p.inmate
             WHERE 1=1
+            ${inmate ? `AND i.id = ${inmate}` : ""}
         `;
 
     let egoQuery = `
