@@ -248,7 +248,7 @@ client.on(Events.InteractionCreate, async interaction => {
         collector.on('end', async () => {
             await interaction.editReply({
                 embeds: [embed],
-                components: [row1, row2]
+                components: count == 1 ? [row1] : [row1, row2]
             });
         })
     }
