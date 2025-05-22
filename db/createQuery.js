@@ -78,6 +78,7 @@ export function drawQuery({ inmate, walpu, anno }) {
             JOIN inmate i ON i.id = e.inmate
             JOIN egoRating r ON r.id = e.rating
             WHERE 1=1
+            ${inmate ? `AND i.id = ${inmate}` : ""}
         `;
 
     let annoQuery = `
