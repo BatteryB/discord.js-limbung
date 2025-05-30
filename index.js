@@ -1,5 +1,5 @@
 // TODO
-// 디스코드 웹후크 테스트
+// 새로 만들 기능 생각하기
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Events, GatewayIntentBits } from 'discord.js';
 import Database from 'better-sqlite3';
