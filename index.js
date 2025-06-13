@@ -1,5 +1,4 @@
 // TODO
-// 새로 만들 기능 생각하기
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Events, GatewayIntentBits } from 'discord.js';
 import Database from 'better-sqlite3';
@@ -214,7 +213,15 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             const collector = response.createMessageComponentCollector({
-                time: 500_000 // 5분
+                time: 500_000,  // 5분
+                filter: i => {
+                    if(i.user.id !== interaction.user.id) {
+                        i.reply({
+                            content: '이 버튼은 뽑기를 시작한 사람만 누를 수 있습니다.', 
+                            flags: 64
+                        });
+                    };
+                }
             });
 
             let resTxt = '';
