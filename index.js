@@ -217,12 +217,15 @@ client.on(Events.InteractionCreate, async interaction => {
                 filter: i => {
                     if(i.user.id !== interaction.user.id) {
                         i.reply({
-                            content: '이 버튼은 뽑기를 시작한 사람만 누를 수 있습니다.', 
+                            content: '이 버튼은 뽑기를 시작한 사람만 누를 수 있습니다.',
                             flags: 64
                         });
-                    };
+                        return false;
+                    }
+                    return true;
                 }
             });
+
 
             let resTxt = '';
             collector.on('collect', async i => {
