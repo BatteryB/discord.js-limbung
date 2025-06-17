@@ -8,8 +8,7 @@ import { fileURLToPath } from 'url';
 
 // 다른 파일 export
 import { giftQuery, drawQuery } from './components/createQuery.js';
-import { embedBuilder, giftEmbedBuilder, giftInfoEmbedBuilder } from './components/embedBuilder.js';
-import { drawButton, effectButtonBuilder, pageButtonBuilder } from './components/buttonBuilder.js';
+import * as cb from './components/componentsBuilder.js';
 import { drawResult } from './utils/utils.js';
 
 dotenv.config({ path: 'env/token.env' });
@@ -54,18 +53,18 @@ client.on(Events.InteractionCreate, async interaction => {
                 giftList.push(arr);
             }
 
-            const embed = giftEmbedBuilder(giftList[giftIndex]);
+            const embed = cb.giftEmbedBuilder(giftList[giftIndex]);
             embed.setFooter({
                 text: `${giftIndex + 1} / ${giftList.length}`
             });
 
             const response = await interaction.editReply({
                 embeds: [embed],
-                components: [pageButtonBuilder(false)]
+                components: [cb.pageButtonBuilder(false)]
             });
 
             const collector = response.createMessageComponentCollector({
-                time: 500_000 // 5분
+                time: 300_000 // 5분
             });
 
             let selectGift;
@@ -80,7 +79,7 @@ client.on(Events.InteractionCreate, async interaction => {
                         giftIndex++;
                     }
 
-                    const embed = giftEmbedBuilder(giftList[giftIndex]);
+                    const embed = cb.giftEmbedBuilder(giftList[giftIndex]);
                     embed.setFooter({
                         text: `${giftIndex + 1} / ${giftList.length}`
                     });
@@ -94,7 +93,7 @@ client.on(Events.InteractionCreate, async interaction => {
                     const effect = selectGift[`effect${effectKey}`];
 
                     await i.update({
-                        embeds: [giftInfoEmbedBuilder(selectGift, effect)]
+                        embeds: [cb.giftInfoEmbedBuilder(selectGift, effect)]
                     });
                 } else {
                     // giftlist에 현재 index의 선택한 위치 (2차원배열)
@@ -104,8 +103,8 @@ client.on(Events.InteractionCreate, async interaction => {
                         return;
                     }
 
-                    const row = effectButtonBuilder(selectGift);
-                    const options = { embeds: [giftInfoEmbedBuilder(selectGift, selectGift.effect1)] };
+                    const row = cb.effectButtonBuilder(selectGift);
+                    const options = { embeds: [cb.giftInfoEmbedBuilder(selectGift, selectGift.effect1)] };
                     if (row) {
                         options.components = [row];
                     } else {
@@ -150,6 +149,7 @@ client.on(Events.InteractionCreate, async interaction => {
             const egoList = db.prepare(egoQuery).all();
             const annoList = db.prepare(annoQuery).all();
 
+            // 뽑기 진행
             let extractList = []
             for (let i = 0; i < count; i++) {
                 const randomValue = Math.random() * totalWeight;
@@ -173,7 +173,7 @@ client.on(Events.InteractionCreate, async interaction => {
                                 disable: false
                             });
 
-                            // 림버스에서 EGO는 중복이 나오지 않기 떄문에 뽑으면 제거
+                            // 에고 중복 추출 방지
                             egoList.splice(egoList.findIndex(e => e.id == resultEgo.id), 1);
                         } else if (weight[j].star == 'anno') {
                             const resultAnno = annoList[Math.floor(Math.random() * annoList.length)];
@@ -195,6 +195,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 }
             }
 
+            // 뽑기 결과로 임베드 색 결정
             let embedColor;
             if (extractList.some(item => item.result.walpu == 1)) {
                 embedColor = 'Green';
@@ -204,8 +205,8 @@ client.on(Events.InteractionCreate, async interaction => {
                 embedColor = 'Red';
             }
 
-            let embed = embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤ');
-            let { row1, row2, all } = drawButton(extractList);
+            let embed = cb.embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤ');
+            let { row1, row2, all } = cb.drawButton(extractList);
 
             const response = await interaction.editReply({
                 embeds: [embed],
@@ -213,9 +214,9 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             const collector = response.createMessageComponentCollector({
-                time: 500_000,  // 5분
+                time: 180_000,  // 3분
                 filter: i => {
-                    if(i.user.id !== interaction.user.id) {
+                    if (i.user.id !== interaction.user.id) {
                         i.reply({
                             content: '이 버튼은 뽑기를 시작한 사람만 누를 수 있습니다.',
                             flags: 64
@@ -226,23 +227,22 @@ client.on(Events.InteractionCreate, async interaction => {
                 }
             });
 
-
-            let resTxt = '';
+            let resArr = [];
             collector.on('collect', async i => {
                 if (i.customId == 'all') {
                     extractList.forEach((item, i) => {
                         if (!item.disable) {
-                            resTxt += drawResult(item);
+                            resArr.push(drawResult(item));
                             item.disable = true;
                         }
                     });
                 } else {
-                    resTxt += drawResult(extractList[Number(i.customId)]);
+                    resArr.push(drawResult(extractList[Number(i.customId)]));
                     extractList[Number(i.customId)].disable = true;
                 }
 
-                ({ row1, row2, all } = drawButton(extractList));
-                embed = embedBuilder(embedColor).setDescription(resTxt);
+                ({ row1, row2, all } = cb.drawButton(extractList));
+                embed = cb.embedBuilder(embedColor).setDescription(resArr.join('\n'));
 
                 await i.update({
                     embeds: [embed],
@@ -278,7 +278,7 @@ client.on(Events.InteractionCreate, async interaction => {
             }
             await interaction.deferReply();
 
-            const embed = embedBuilder('DarkRed').setTitle('추출 횟수 계산');
+            const embed = cb.embedBuilder('DarkRed').setTitle('추출 횟수 계산');
 
             const fields = [
                 lunacy ? { name: '광기', value: `**${lunacy}개**`, inline: true } : null,
@@ -296,7 +296,7 @@ client.on(Events.InteractionCreate, async interaction => {
             })
         }
     } catch (e) {
-        console.error(e)
+        console.error(e);
     }
 });
 
