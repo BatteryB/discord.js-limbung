@@ -13,3 +13,14 @@ export function selectInmateObj() {
         }
     })
 }
+
+export function selectKeyword() {
+    const keywordData = db.prepare('SELECT * FROM keyword').all();
+
+    return keywordData.map(keyword => {
+        return {
+            name: keyword.name, 
+            value: keyword.id
+        }
+    })
+}

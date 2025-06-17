@@ -28,8 +28,8 @@ client.on(Events.InteractionCreate, async interaction => {
             await interaction.deferReply();
 
             const options = {
-                "tire": interaction.options.getString('티어'),
-                "keyword": interaction.options.getString('키워드'),
+                "tire": interaction.options.getNumber('티어'),
+                "keyword": interaction.options.getNumber('키워드'),
                 "name": interaction.options.getString('이름'),
                 "material": interaction.options.getString('재료'),
                 "type": interaction.options.getString('타입'),
