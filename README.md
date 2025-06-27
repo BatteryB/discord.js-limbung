@@ -3,4 +3,4 @@
 - dotenv
 - better-sqlite3
 
-[림붕이 봇 초대하기](<https://discord.com/oauth2/authorize?client_id=1322588403358761090&permissions=2048&integration_type=0&scope=bot>)
+[invite 림붕이](<https://discord.com/oauth2/authorize?client_id=1322588403358761090&permissions=2048&integration_type=0&scope=bot>)
