@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 // 다른 파일 export
 import { giftQuery, drawQuery } from './components/createQuery.js';
 import * as cb from './components/componentsBuilder.js';
-import { drawResult, safeUpdate } from './components/utils.js';
+import { drawResult, safeUpdate, safeEditReply } from './components/utils.js';
 
 dotenv.config({ path: 'env/token.env' });
 const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'limbung.db'));
@@ -40,9 +40,7 @@ client.on(Events.InteractionCreate, async interaction => {
             const giftResult = db.prepare(query).all(...queryParams);
 
             if (giftResult.length <= 0) {
-                interaction.editReply({
-                    content: "__***검색결과를 찾지 못했습니다.. ㅠㅠ***__"
-                })
+                await safeEditReply(interaction, { content: "__***검색결과를 찾지 못했습니다.. ㅠㅠ***__" })
                 return;
             }
 
@@ -58,10 +56,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 text: `${giftIndex + 1} / ${giftList.length}`
             });
 
-            const response = await interaction.editReply({
-                embeds: [embed],
-                components: [cb.pageButtonBuilder(false)]
-            });
+            await safeEditReply(interaction, { embeds: [embed], components: [cb.pageButtonBuilder(false)] })
 
             const collector = response.createMessageComponentCollector({
                 time: 300_000 // 5분
@@ -112,22 +107,17 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             collector.on('end', async () => {
-                try {
-                    const row = new ActionRowBuilder()
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setCustomId('end')
-                                .setLabel('검색종료')
-                                .setStyle(ButtonStyle.Secondary)
-                                .setDisabled()
-                        )
-                    await interaction.editReply({
-                        components: [row]
-                    });
-                    return;
-                } catch (_) {
-                    return;
-                }
+                const row = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('end')
+                            .setLabel('검색종료')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled()
+                    )
+
+                await safeEditReply(interaction, { components: [row] })
+                return;
             });
         }
 
@@ -209,10 +199,7 @@ client.on(Events.InteractionCreate, async interaction => {
             let embed = cb.embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤ');
             let { row1, row2, all } = cb.drawButton(extractList);
 
-            const response = await interaction.editReply({
-                embeds: [embed],
-                components: count == 1 ? [row1] : [row1, row2, all]
-            })
+            await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2, all] })
 
             const collector = response.createMessageComponentCollector({
                 time: 180_000,  // 3분
@@ -255,15 +242,8 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             collector.on('end', async () => {
-                try {
-                    await interaction.editReply({
-                        embeds: [embed],
-                        components: count == 1 ? [row1] : [row1, row2]
-                    });
-                    return;
-                } catch (_) {
-                    return;
-                }
+                await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2] })
+                return;
             })
         }
 
@@ -294,9 +274,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 { name: '총 추출 횟수', value: `__**${Math.floor((lunacy / 130) + ticket1 + (ticket10 * 10))}회**__` }
             );
 
-            await interaction.editReply({
-                embeds: [embed]
-            })
+            await safeEditReply(interaction, { embeds: [embed] })
         }
     } catch (e) {
         console.error(e);

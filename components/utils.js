@@ -13,3 +13,9 @@ export async function safeUpdate(i, detail) {
         await i.update(detail)
     } catch (_) {}
 }
+
+export async function safeEditReply(i, detail) {
+    try {
+        await i.editReply(detail)
+    } catch (_) {}
+}
