@@ -64,7 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
             });
 
             const collector = response.createMessageComponentCollector({
-                time: 2_000//300_000 // 5분
+                time: 300_000 // 5분
             });
 
             let selectGift;
