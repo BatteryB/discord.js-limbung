@@ -7,3 +7,11 @@ export function drawResult(drow) {
         return `[${drow.result.rating}] ${drow.result.name} ${drow.result.inmate}`
     }
 }
+
+export async function safeUpdate(i, detail) {
+    try {
+        await i.update(detail)
+    } catch (_) {
+        console.log("성공!!!!")
+    }
+}

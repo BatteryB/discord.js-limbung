@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 // 다른 파일 export
 import { giftQuery, drawQuery } from './components/createQuery.js';
 import * as cb from './components/componentsBuilder.js';
-import { drawResult } from './utils/utils.js';
+import { drawResult, safeUpdate } from './components/utils.js';
 
 dotenv.config({ path: 'env/token.env' });
 const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'egoGift.db'));
@@ -64,7 +64,7 @@ client.on(Events.InteractionCreate, async interaction => {
             });
 
             const collector = response.createMessageComponentCollector({
-                time: 300_000 // 5분
+                time: 2_000//300_000 // 5분
             });
 
             let selectGift;
@@ -84,17 +84,14 @@ client.on(Events.InteractionCreate, async interaction => {
                         text: `${giftIndex + 1} / ${giftList.length}`
                     });
 
-                    await i.update({
-                        embeds: [embed]
-                    });
+                    await safeUpdate(i, { embeds: [embed] })
+
                 } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) {
                     // replace로 effect제거 후 뒤에 숫자만 남김, 이후 effect(숫자) 조합으로 바로 값 찾기
                     const effectKey = i.customId.replace('effect', '');
                     const effect = selectGift[`effect${effectKey}`];
 
-                    await i.update({
-                        embeds: [cb.giftInfoEmbedBuilder(selectGift, effect)]
-                    });
+                    await safeUpdate(i, { embeds: [cb.giftInfoEmbedBuilder(selectGift, effect)] })
                 } else {
                     // giftlist에 현재 index의 선택한 위치 (2차원배열)
                     selectGift = giftList[giftIndex][Number(i.customId)];
@@ -110,23 +107,27 @@ client.on(Events.InteractionCreate, async interaction => {
                     } else {
                         options.components = [];
                     }
-                    await i.update(options);
+                    await safeUpdate(i, options)
                 }
             })
 
             collector.on('end', async () => {
-                const row = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('end')
-                            .setLabel('검색종료')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setDisabled()
-                    )
-                await interaction.editReply({
-                    components: [row]
-                });
-                return;
+                try {
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('end')
+                                .setLabel('검색종료')
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled()
+                        )
+                    await interaction.editReply({
+                        components: [row]
+                    });
+                    return;
+                } catch (_) {
+                    return;
+                }
             });
         }
 
@@ -244,10 +245,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 ({ row1, row2, all } = cb.drawButton(extractList));
                 embed = cb.embedBuilder(embedColor).setDescription(resArr.join('\n'));
 
-                await i.update({
-                    embeds: [embed],
-                    components: count == 1 ? [row1] : [row1, row2, all]
-                })
+                await safeUpdate(i, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2, all] })
 
                 if (extractList.every(item => item.disable == true) || extractList.length <= 0) {
                     collector.stop();
@@ -257,10 +255,15 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             collector.on('end', async () => {
-                await interaction.editReply({
-                    embeds: [embed],
-                    components: count == 1 ? [row1] : [row1, row2]
-                });
+                try {
+                    await interaction.editReply({
+                        embeds: [embed],
+                        components: count == 1 ? [row1] : [row1, row2]
+                    });
+                    return;
+                } catch (_) {
+                    return;
+                }
             })
         }
 
