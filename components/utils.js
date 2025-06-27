@@ -16,6 +16,6 @@ export async function safeUpdate(i, detail) {
 
 export async function safeEditReply(i, detail) {
     try {
-        await i.editReply(detail)
+        return await i.editReply(detail)
     } catch (_) {}
 }

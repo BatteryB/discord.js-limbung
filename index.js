@@ -56,7 +56,7 @@ client.on(Events.InteractionCreate, async interaction => {
                 text: `${giftIndex + 1} / ${giftList.length}`
             });
 
-            await safeEditReply(interaction, { embeds: [embed], components: [cb.pageButtonBuilder(false)] })
+            const response = await safeEditReply(interaction, { embeds: [embed], components: [cb.pageButtonBuilder(false)] })
 
             const collector = response.createMessageComponentCollector({
                 time: 300_000 // 5분
@@ -199,7 +199,7 @@ client.on(Events.InteractionCreate, async interaction => {
             let embed = cb.embedBuilder(embedColor).setDescription('ㅤㅤㅤㅤㅤㅤㅤㅤ');
             let { row1, row2, all } = cb.drawButton(extractList);
 
-            await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2, all] })
+            const response = await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2, all] })
 
             const collector = response.createMessageComponentCollector({
                 time: 180_000,  // 3분
