@@ -12,7 +12,7 @@ import * as cb from './components/componentsBuilder.js';
 import { drawResult, safeUpdate } from './components/utils.js';
 
 dotenv.config({ path: 'env/token.env' });
-const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'egoGift.db'));
+const db = new Database(path.join(path.dirname(fileURLToPath(import.meta.url)), 'db', 'limbung.db'));
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
