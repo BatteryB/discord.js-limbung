@@ -11,7 +11,5 @@ export function drawResult(drow) {
 export async function safeUpdate(i, detail) {
     try {
         await i.update(detail)
-    } catch (_) {
-        console.log("성공!!!!")
-    }
+    } catch (_) {}
 }
