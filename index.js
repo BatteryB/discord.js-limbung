@@ -81,10 +81,9 @@ client.on(Events.InteractionCreate, async interaction => {
 
                     await safeUpdate(i, { embeds: [embed] })
 
-                } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) {
-                    // replace로 effect제거 후 뒤에 숫자만 남김, 이후 effect(숫자) 조합으로 바로 값 찾기
-                    const effectKey = i.customId.replace('effect', '');
-                    const effect = selectGift[`effect${effectKey}`];
+                } else if (['effect1', 'effect2', 'effect3'].includes(i.customId)) { // 기프트 효과 조회
+                    const effectKey = i.customId;
+                    const effect = selectGift[effectKey];
 
                     await safeUpdate(i, { embeds: [cb.giftInfoEmbedBuilder(selectGift, effect)] })
                 } else {
@@ -242,7 +241,13 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             collector.on('end', async () => {
-                await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2] })
+                row1 = cb.disabledComponents(row1);
+                const components = [row1];
+                if(count != 1) {
+                    row2 = cb.disabledComponents(row2)
+                    components.push(row2)
+                }
+                await safeEditReply(interaction, { embeds: [embed], components: components })
                 return;
             })
         }
