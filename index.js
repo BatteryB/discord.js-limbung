@@ -242,7 +242,13 @@ client.on(Events.InteractionCreate, async interaction => {
             })
 
             collector.on('end', async () => {
-                await safeEditReply(interaction, { embeds: [embed], components: count == 1 ? [row1] : [row1, row2] })
+                row1 = cb.disabledComponents(row1);
+                const components = [row1];
+                if(count != 1) {
+                    row2 = cb.disabledComponents(row2)
+                    components.push(row2)
+                }
+                await safeEditReply(interaction, { embeds: [embed], components: components })
                 return;
             })
         }

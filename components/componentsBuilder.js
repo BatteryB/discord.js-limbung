@@ -145,3 +145,9 @@ export function giftInfoEmbedBuilder(gift, effect) {
 
     return embed;
 }
+
+export function disabledComponents(row) {
+    return new ActionRowBuilder().addComponents(
+        row.components.map(button => ButtonBuilder.from(button).setDisabled(true))
+    );
+}
